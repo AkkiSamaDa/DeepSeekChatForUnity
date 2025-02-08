@@ -22,7 +22,7 @@ namespace AIChat
         }
         
         [System.Serializable]
-        private class ChatRequest
+        public class ChatRequest
         {
             public static class Role
             {
@@ -147,7 +147,7 @@ namespace AIChat
                 return content;
             }
         }
-
+        
         private AI ai;
 
         private List<Message> messageHistory;
@@ -159,11 +159,12 @@ namespace AIChat
         
         //参数
         private const string URL = "https://api.deepseek.com/chat/completions";
-        private const string TOKEN = "sk-0b8563f6266f460dac77778dee3dcb1d";
+        private static string TOKEN;
         
         public delegate void Callback(ChatResponse response, bool isSuccess);
 
-        public UnityWebRequest CreateWebRequest(string userInput)
+        public UnityWebRequest CreateWebRequest(string userInput, string model, float frequency_penalty,
+            int max_tokens, float presence_penalty, float temperature)
         {
             messageHistory ??= new List<Message>()
             {
@@ -176,7 +177,7 @@ namespace AIChat
                 new (userInput, ChatRequest.Role.User)
             };
 
-            ChatRequest chatReq = new(messages);
+            ChatRequest chatReq = new(messages, model, frequency_penalty, max_tokens, presence_penalty, temperature);
 
             string jsonData = JsonUtility.ToJson(chatReq);
             //Debug.Log("Sending JSON: " + JsonUtility.ToJson(chatReq));
@@ -195,12 +196,12 @@ namespace AIChat
 
         public IEnumerator SendRequest(UnityWebRequest unityWebRequest, Callback callback)
         {
-            var reqOp = unityWebRequest.SendWebRequest();
+            UnityWebRequestAsyncOperation reqOp = unityWebRequest.SendWebRequest();
             
             while (!reqOp.isDone)
             {
                 Debug.Log("等待回复中...");
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(3);
             }
 
             if (unityWebRequest.result == UnityWebRequest.Result.ConnectionError ||
@@ -219,6 +220,7 @@ namespace AIChat
                 Debug.LogError("content is empty " + unityWebRequest.responseCode);
                 yield break;
             }
+            
             ChatResponse chatResponse = JsonUtility.FromJson<ChatResponse>(unityWebRequest.downloadHandler.text);
 
             if (chatResponse?.choices?.Length > 0)
@@ -232,6 +234,11 @@ namespace AIChat
             }
             
             callback(chatResponse, true);
+        }
+
+        public static void SetToken(string token)
+        {
+            TOKEN = token;
         }
     }
 }
