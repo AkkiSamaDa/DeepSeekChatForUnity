@@ -154,6 +154,8 @@ namespace AIChat
 
         private bool isWaiting;
         
+        private Message currentMessage;
+        
         public bool IsWaiting => isWaiting;
         public Conversation(AI ai)
         {
@@ -173,11 +175,12 @@ namespace AIChat
             {
                 new (ai.Trait, ChatRequest.Role.System),
             };
-            
+
+            currentMessage = new(userInput, ChatRequest.Role.User);
             //追加历史对话记录
             var messages = new List<Message>(messageHistory)
             {
-                new (userInput, ChatRequest.Role.User)
+                currentMessage
             };
 
             ChatRequest chatReq = new(messages, model, frequency_penalty, max_tokens, presence_penalty, temperature);
@@ -234,6 +237,7 @@ namespace AIChat
                 {
                     string responseMessage = chatResponse.GetContent(i);
                     //维护历史消息
+                    messageHistory.Add(currentMessage);
                     messageHistory.Add(new Message(responseMessage, ChatRequest.Role.Assistant));
                 }
             }
