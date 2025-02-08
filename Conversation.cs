@@ -165,11 +165,14 @@ namespace AIChat
 
         public UnityWebRequest CreateWebRequest(string userInput)
         {
-            messageHistory ??= new List<Message>();
-            //追加历史对话记录
-            List<Message> messages = new List<Message>(messageHistory)
+            messageHistory ??= new List<Message>()
             {
                 new (ai.Trait, ChatRequest.Role.System),
+            };
+            
+            //追加历史对话记录
+            var messages = new List<Message>(messageHistory)
+            {
                 new (userInput, ChatRequest.Role.User)
             };
 
@@ -177,7 +180,7 @@ namespace AIChat
 
             string jsonData = JsonUtility.ToJson(chatReq);
             //Debug.Log("Sending JSON: " + JsonUtility.ToJson(chatReq));
-            Debug.Log("Sending Message: " + userInput);
+            //Debug.Log("Sending Message: " + userInput);
             
             UnityWebRequest webReq = new (URL, "POST");
             byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
@@ -209,10 +212,16 @@ namespace AIChat
                 callback(null, false);
                 yield break;
             }
-            
+
+            if (string.IsNullOrEmpty(unityWebRequest.downloadHandler.text))
+            {
+                callback(null, false);
+                Debug.LogError("content is empty " + unityWebRequest.responseCode);
+                yield break;
+            }
             ChatResponse chatResponse = JsonUtility.FromJson<ChatResponse>(unityWebRequest.downloadHandler.text);
 
-            if (chatResponse.choices?.Length > 0)
+            if (chatResponse?.choices?.Length > 0)
             {
                 for (int i = 0; i < chatResponse.choices.Length; i++)
                 {
