@@ -152,6 +152,9 @@ namespace AIChat
 
         private List<Message> messageHistory;
 
+        private bool isWaiting;
+        
+        public bool IsWaiting => isWaiting;
         public Conversation(AI ai)
         {
             this.ai = ai;
@@ -198,12 +201,14 @@ namespace AIChat
         {
             UnityWebRequestAsyncOperation reqOp = unityWebRequest.SendWebRequest();
             
+            isWaiting = true;
             while (!reqOp.isDone)
             {
                 Debug.Log("等待回复中...");
                 yield return new WaitForSeconds(3);
             }
-
+            isWaiting = false;
+            
             if (unityWebRequest.result == UnityWebRequest.Result.ConnectionError ||
                 unityWebRequest.result == UnityWebRequest.Result.ProtocolError ||
                 unityWebRequest.result == UnityWebRequest.Result.DataProcessingError)
