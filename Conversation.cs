@@ -115,6 +115,11 @@ namespace AIChat
 
             public Choice[] choices;
 
+            /// <summary>
+            /// 获取指定段的AI回复内容
+            /// </summary>
+            /// <param name="index">段落索引值，从0开始</param>
+            /// <returns></returns>
             public string GetContent(int index)
             {
                 if (this.choices.Length > 0 && index >= 0 && index < this.choices.Length)
@@ -123,7 +128,12 @@ namespace AIChat
                 }
                 return string.Empty;
             }
-
+            
+            
+            /// <summary>
+            /// 获取所有AI回复内容，通常AI回复只有一段内容，建议使用GetContent(0)获取，多段时会作拼接
+            /// </summary>
+            /// <returns></returns>
             public string GetAllContent()
             {
                 string content = string.Empty;
