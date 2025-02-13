@@ -55,7 +55,7 @@ namespace AIChat
         /// <param name="temperature">采样温度，介于 0 和 2 之间。更高的值，如 0.8，会使输出更随机，而更低的值，如 0.2，会使其更加集中和确定。</param>
         public void Chat(string userInput, Conversation conversation, MonoBehaviour behaviour, Conversation.Callback callback
             , string model = Conversation.ChatRequest.Model.Chat, float frequency_penalty = 0,
-            int max_tokens = 8192, float presence_penalty = 0, float temperature = 1)
+            int max_tokens = 8192, float presence_penalty = 0, float temperature = 1.3f)
         {
             if (conversation == null ||behaviour == null)
                 return;

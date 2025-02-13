@@ -222,6 +222,7 @@ namespace AIChat
                 yield break;
             }
 
+            //检测服务器未响应，服务器高压时时常出现
             if (string.IsNullOrEmpty(unityWebRequest.downloadHandler.text))
             {
                 callback(null, false);
